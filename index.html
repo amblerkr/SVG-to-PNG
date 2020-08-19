@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>SVG to PNG</title>
+  </head>
+  <body>
+    <div style="background: white; padding: 2em;">
+      <textarea id="t" rows="5" cols="70" wrap="off"></textarea
+      ><br /><br /><button id="l">SVG 가져오기</button><br /><br />
+      <div id="d"></div>
+      <br />
+      Width:
+      <input id="w" type="number" max="9999" style="width: 4em;" /> Height:
+      <input
+        id="h"
+        type="number"
+        max="9999"
+        style="width: 4em;"
+      /><br /><br /><button id="s">
+        SVG를 PNG로 저장</button
+      ><br /><br /><canvas id="c"></canvas>
+      <script>
+        var text = document.getElementById("t");
+        text.wrap = "off";
+        var svg = null,
+          width = document.getElementById("w"),
+          height = document.getElementById("h");
+        document.getElementById("l").addEventListener("click", function () {
+          var e = document.getElementById("d");
+          e.innerHTML = text.value;
+          svg = e.querySelector("svg");
+          width.value = svg.getBoundingClientRect().width;
+          height.value = svg.getBoundingClientRect().height;
+        });
+        document.getElementById("s").addEventListener("click", function () {
+          var e = document.getElementById("c");
+          svg.setAttribute("width", width.value);
+          svg.setAttribute("height", height.value);
+          e.width = width.value;
+          e.height = height.value;
+          var a = new XMLSerializer().serializeToString(svg),
+            n = window.URL || window.webkitURL || window,
+            t = new Image(),
+            d = new Blob([a], { type: "image/svg+xml" });
+          var i = n.createObjectURL(d);
+          t.onload = function () {
+            e.getContext("2d").drawImage(t, 0, 0);
+            n.revokeObjectURL(i);
+            var d = e
+                .toDataURL("image/png")
+                .replace("image/png", "octet/stream"),
+              a = document.createElement("a");
+            document.body.appendChild(a);
+            a.style = "display: none";
+            a.href = d;
+            a.download =
+              (svg.id ||
+                svg.getAttribute("name") ||
+                svg.getAttribute("aria-label") ||
+                "untitled") + ".png";
+            a.click();
+            window.URL.revokeObjectURL(d);
+            document.body.removeChild(a);
+          };
+          t.src = i;
+        });
+        function drawImage(e, n) {
+          var t = e.getContext("2d"),
+            l = {};
+          var g = window.devicePixelRatio || 1,
+            o =
+              t.webkitBackingStorePixelRatio ||
+              t.mozBackingStorePixelRatio ||
+              t.msBackingStorePixelRatio ||
+              t.oBackingStorePixelRatio ||
+              t.backingStorePixelRatio ||
+              1,
+            i = g / o;
+          if (g !== o) {
+            var a = e.width,
+              d = e.height;
+            e.width = a * i;
+            e.height = d * i;
+            e.style.width = a + "px";
+            e.style.height = d + "px";
+            t.scale(i, i);
+          }
+          t.drawImage(n, 0, 0, n.naturalWidth, n.naturalHeight);
+        }
+      </script>
+    </div>
+    <style>
+      body {
+        background-color: #fff;
+        padding: 1rem;
+        max-width: 100% !important;
+      }
+
+      ::-webkit-scrollbar {
+        width: 3px;
+      }
+
+      ::-webkit-scrollbar-thumb {
+        background-color: #fff;
+      }
+    </style>
+  </body>
+</html>
